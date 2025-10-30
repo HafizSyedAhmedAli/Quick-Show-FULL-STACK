@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { dummyBookingData } from "../assets/assets";
+import { Link } from "react-router-dom";
 import BlurCircle from "../components/BlurCircle";
 import Loading from "../components/Loading";
+import { useAppContext } from "../context/AppContext";
 import dateFormat from "../lib/dateFormat";
 import timeFormat from "../lib/timeFormat";
-import { useAppContext } from "../context/AppContext";
 
 const MyBookings = () => {
 
@@ -56,7 +56,7 @@ const MyBookings = () => {
                     <div>
                         <div className="flex items-center gap-4">
                             <p className="text-2xl font-semibold mb-3">{currency}{booking.amount}</p>
-                            {!booking.isPaid && <button className="bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer">Pay Now</button>}
+                            {!booking.isPaid && <Link to={booking.paymentLink} className="bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer">Pay Now</Link>}
                         </div>
 
                         <div className="text-sm">

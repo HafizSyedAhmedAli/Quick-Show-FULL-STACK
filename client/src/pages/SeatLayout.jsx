@@ -1,12 +1,12 @@
 import { ArrowRightIcon, ClockIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
-import { assets, dummyDateTimeData, dummyShowsData } from "../assets/assets";
+import { useParams } from "react-router-dom";
+import { assets } from "../assets/assets";
 import BlurCircle from "../components/BlurCircle";
 import Loading from "../components/Loading";
-import isoTimeFormat from "../lib/isoTimeFormat";
 import { useAppContext } from "../context/AppContext";
+import isoTimeFormat from "../lib/isoTimeFormat";
 
 const SeatLayout = () => {
     const { id, date } = useParams();
@@ -24,19 +24,7 @@ const SeatLayout = () => {
     const [show, setShow] = useState(null);
     const [occupiedSeats, setOccupiedSeats] = useState([]);
 
-    const navigate = useNavigate();
-
-    const {
-        axios,
-        fetchIsAdmin,
-        user,
-        getToken,
-        isAdmin,
-        shows,
-        favoriteMovies,
-        fetchFavoriteMovies,
-        image_base_url,
-    } = useAppContext();
+    const { axios, user, getToken } = useAppContext();
 
     const getShow = async () => {
         try {
@@ -65,7 +53,8 @@ const SeatLayout = () => {
         if (!selectedTime) return toast("Please select time first");
         if (!selectedSeats.includes(seatId) && selectedSeats.length > 4)
             return toast("You can only select 5 seats");
-        if (occupiedSeats.includes(seatId)) return toast("This seat is already booked.");
+        if (occupiedSeats.includes(seatId))
+            return toast("This seat is already booked.");
         setSelectedSeats((prev) =>
             prev.includes(seatId)
                 ? prev.filter((seat) => seat !== seatId)
@@ -96,25 +85,28 @@ const SeatLayout = () => {
 
     const bookTickets = async () => {
         try {
-
             if (!user) return toast.error("Please login to proceed.");
-            if (!selectedTime || !selectedSeats.length) return toast.error("Please select a time and seats.");
+            if (!selectedTime || !selectedSeats.length)
+                return toast.error("Please select a time and seats.");
 
             const config = {
                 headers: { Authorization: `Bearer ${await getToken()}` },
             };
-            const { data } = await axios.post("/api/booking/create", { showId: selectedTime.showId, selectedSeats }, config);
+            const { data } = await axios.post(
+                "/api/booking/create",
+                { showId: selectedTime.showId, selectedSeats },
+                config
+            );
 
             if (data.success) {
                 window.location.replace(data.url);
             } else {
                 toast.error(data.message);
             }
-
         } catch (error) {
             toast.error(error.message);
         }
-    }
+    };
 
     useEffect(() => {
         getShow();
@@ -134,8 +126,8 @@ const SeatLayout = () => {
                         <div
                             key={item.time}
                             className={`flex items-center gap-2 px-6 py-2 w-max rounded-r-md cursor-pointer transition ${selectedTime?.time === item.time
-                                ? "bg-primary text-white"
-                                : "hover:bg-primary/20"
+                                    ? "bg-primary text-white"
+                                    : "hover:bg-primary/20"
                                 }`}
                             onClick={() => setSelectedTime(item)}
                         >
