@@ -6,13 +6,13 @@ import { serve } from "inngest/express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import connectDB from "./configs/db.js";
+import { stripeWebhooks } from "./controllers/bookingController.js";
 import { functions, inngest } from "./inngest/index.js";
 import adminRouter from "./routes/adminRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import showRouter from "./routes/showRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import getSwaggerOptions from "./swagger/swaggerOptions.js";
-import { stripeWebhooks } from "./utils/stripeWebhooks.js";
 
 const app = express();
 const port = 3000;
@@ -20,11 +20,7 @@ const port = 3000;
 await connectDB();
 
 // Stripe Webhooks Route
-app.post(
-  "/stripe",
-  express.raw({ type: "application/json" }),
-  stripeWebhooks
-);
+app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 
 // Middleware
 app.use(express.json());
