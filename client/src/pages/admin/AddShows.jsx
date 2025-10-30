@@ -1,11 +1,14 @@
 import { CheckIcon, DeleteIcon, StarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { dummyShowsData } from "../../assets/assets";
 import Loading from "../../components/Loading";
 import Title from "../../components/admin/Title";
+import { useAppContext } from "../../context/AppContext";
 import kConverter from "../../lib/kConverter";
+import toast from "react-hot-toast";
 
 const AddShows = () => {
+    const { user, axios, getToken, image_base_url } = useAppContext();
+
     const currency = import.meta.env.VITE_CURRENCY;
     const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
     const [selectedMovie, setSelectedMovie] = useState(null);
@@ -13,8 +16,21 @@ const AddShows = () => {
     const [dateTimeInput, setDateTimeInput] = useState("");
     const [showPrice, setShowPrice] = useState("");
 
+    const [addingShow, setAddingShow] = useState(false);
+
     const fetchNowPlayingMovies = async () => {
-        setNowPlayingMovies(dummyShowsData);
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${await getToken()}` },
+            };
+            const { data } = await axios.get("/api/show/now-playing", config);
+
+            if (data.success) {
+                setNowPlayingMovies(data.movies);
+            }
+        } catch (error) {
+            console.error("Error fetching movies:", error);
+        }
     };
 
     const handleDateTimeAdd = () => {
@@ -46,9 +62,52 @@ const AddShows = () => {
         });
     };
 
+    const handleSubmit = async () => {
+        try {
+            setAddingShow(true);
+
+            if (
+                !selectedMovie ||
+                Object.keys(dateTimeSelection).length === 0 ||
+                !showPrice
+            ) {
+                return toast("Missing required fields");
+            }
+
+            const showsInput = Object.entries(dateTimeSelection).map(
+                ([date, time]) => ({ date, time })
+            );
+
+            const payload = {
+                movieId: selectedMovie,
+                showsInput,
+                showPrice: Number(showPrice),
+            };
+
+            const config = {
+                headers: { Authorization: `Bearer ${await getToken()}` },
+            };
+            const { data } = await axios.post("/api/show/add", payload, config);
+
+            if (data.success) {
+                toast.success(data.message);
+                setSelectedMovie(null);
+                setDateTimeSelection({});
+                setShowPrice("");
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error("Submission error:", error);
+            toast.error("An error occurred. Plz try again.");
+        } finally {
+            setAddingShow(false);
+        }
+    };
+
     useEffect(() => {
-        fetchNowPlayingMovies();
-    }, []);
+        if (user) fetchNowPlayingMovies();
+    }, [user]);
 
     return nowPlayingMovies.length ? (
         <>
@@ -66,7 +125,7 @@ const AddShows = () => {
                             <div className="relative rounded-lg overflow-hidden">
                                 <img
                                     className="w-full object-cover brightness-90"
-                                    src={movie.poster_path}
+                                    src={image_base_url + movie.poster_path}
                                     alt=""
                                 />
                                 <div className="text-sm flex items-center justify-between p-2 bg-black/70 w-full absolute bottom-0 left-0">
@@ -140,9 +199,16 @@ const AddShows = () => {
                                 <div className="font-medium">{date}</div>
                                 <div className="flex flex-wrap gap-2 mt-1 text-sm">
                                     {times.map((time) => (
-                                        <div key={time} className="border border-primary px-2 py-1 flex items-center rounded">
+                                        <div
+                                            key={time}
+                                            className="border border-primary px-2 py-1 flex items-center rounded"
+                                        >
                                             <span>{time}</span>
-                                            <DeleteIcon className="ml-2 text-red-500 hover:text-red-700 cursor-pointer" onClick={() => handleRemoveTime(date, time)} width={15} />
+                                            <DeleteIcon
+                                                className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                                                onClick={() => handleRemoveTime(date, time)}
+                                                width={15}
+                                            />
                                         </div>
                                     ))}
                                 </div>
@@ -152,7 +218,11 @@ const AddShows = () => {
                 </div>
             )}
 
-            <button className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer">
+            <button
+                onClick={handleSubmit}
+                disabled={addingShow}
+                className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer"
+            >
                 Add Show
             </button>
         </>

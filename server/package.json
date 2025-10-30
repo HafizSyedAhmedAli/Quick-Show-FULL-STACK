@@ -20,6 +20,8 @@
     "express": "^5.1.0",
     "inngest": "^3.44.3",
     "mongoose": "^8.19.1",
+    "stripe": "^19.1.0",
+    "svix": "^1.81.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }

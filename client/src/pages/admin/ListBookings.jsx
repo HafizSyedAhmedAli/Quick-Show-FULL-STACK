@@ -3,26 +3,40 @@ import { dummyBookingData } from "../../assets/assets";
 import Loading from "../../components/Loading";
 import Title from "../../components/admin/Title";
 import dateFormat from "../../lib/dateFormat";
+import { useAppContext } from "../../context/AppContext";
 
 const ListBookings = () => {
 
     const currency = import.meta.env.VITE_CURRENCY;
 
+    const { user, axios, getToken } = useAppContext();
+
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const getAllBookings = async () => {
-        setBookings(dummyBookingData);
-        setLoading(false);
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${await getToken()}` },
+            };
+            const { data } = await axios.get("/api/admin/all-bookings", config);
+
+            setBookings(data.bookings);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
-        getAllBookings();
-    }, []);
+        if (user)
+            getAllBookings();
+    }, [user]);
 
     return !loading ? (
         <>
-                <Title text1="List" text2="Bookings" />
+            <Title text1="List" text2="Bookings" />
             <div className="max-w-4xl mt-6 overflow-x-auto">
                 <table className="w-full border-collapse rounded-md overflow-hidden text-nowrap">
                     <thead>
@@ -34,7 +48,7 @@ const ListBookings = () => {
                             <th className="p-2 font-medium">Amount</th>
                         </tr>
                     </thead>
-                    <tbody className="text-sm font-light"> 
+                    <tbody className="text-sm font-light">
                         {bookings.map((item, index) => (
                             <tr key={index} className="border-b border-primary/10 bg-primary/5 even:bg-primary/10">
                                 <td className="p-2 min-w-45 pl-5">{item.user.name}</td>
