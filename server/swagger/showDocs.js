@@ -306,4 +306,34 @@
  *                    trailers:
  *                      - thumbnail: "https://img.youtube.com/vi/abcd1234/maxresdefault.jpg"
  *                        videoUrl: "https://www.youtube.com/watch?v=abcd1234"
+ * 
+ *  /api/show/trailers/{movieId}:
+ *   get:
+ *     summary: Get trailer for a specific movie 
+ *     tags:
+ *       - Shows
+ *     description: >
+ *       Fetches videos for the specified movie from TMDB, selects the most
+ *       appropriate YouTube trailer, resolves a thumbnail URL and returns
+ *       `{ thumbnail, videoUrl }`. TMDB API key is used server-side (not exposed).
+ *     parameters:
+ *       - in: path
+ *         name: movieId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         
+ *     responses:
+ *       200:
+ *         description: Trailer found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 trailer:
+ *                   $ref: '#/components/schemas/Trailer'
  */

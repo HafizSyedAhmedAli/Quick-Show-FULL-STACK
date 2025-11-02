@@ -93,6 +93,42 @@ export const getTrailers = async (req, res) => {
   }
 };
 
+// Get Trailers from the TMDB API : /api/show/trailers/:movieId
+export const getTrailer = async (req, res) => {
+  try {
+    const { movieId } = req.params;
+
+    const { data } = await axios.get(
+      `https://api.themoviedb.org/3/movie/${movieId}/videos`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
+        },
+      }
+    );
+
+    const trailerData = data.results;
+    const found = trailerData.find(
+      (t) => t.site === "YouTube" && t.type === "Trailer" && t.official
+    );
+
+    if (!found?.key)
+      return res.json({ success: false, message: "Trailer Not Found." });
+
+    const thumbnail = await getThumbnail(found.key);
+
+    const trailer = {
+      thumbnail,
+      videoUrl: `https://www.youtube.com/watch?v=${found.key}`,
+    };
+
+    res.json({ success: true, trailer });
+  } catch (error) {
+    console.error(error.message);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 // Add a new show to the database : /api/show/add
 export const addShow = async (req, res) => {
   try {

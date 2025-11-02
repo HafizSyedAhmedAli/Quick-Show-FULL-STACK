@@ -1,19 +1,21 @@
 import { Heart, PlayCircleIcon, Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import ReactPlayer from 'react-player';
 import { useNavigate, useParams } from "react-router-dom";
-import { dummyDateTimeData, dummyShowsData } from "../assets/assets";
 import BlurCircle from "../components/BlurCircle";
 import DateSelect from "../components/DateSelect";
 import Loading from "../components/Loading";
 import MovieCard from "../components/MovieCard";
 import { useAppContext } from "../context/AppContext";
 import timeFormat from "../lib/timeFormat";
-import toast from "react-hot-toast";
 
 const MovieDetails = () => {
     const { id } = useParams();
     const [show, setShow] = useState(null);
+    const [trailer, setTrailer] = useState({});
     const navigate = useNavigate();
+    const trailerRef = useRef(null);
 
     const { shows, axios, getToken, user, favoriteMovies, fetchFavoriteMovies, image_base_url } = useAppContext();
 
@@ -45,8 +47,23 @@ const MovieDetails = () => {
         }
     }
 
+    const fetchTrailer = async () => {
+        try {
+            const { data } = await axios.get(`/api/show/trailers/${id}`);
+            setTrailer(data.trailer);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const scrollToTrailer = () => {
+        const el = trailerRef.current;
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+
     useEffect(() => {
         getShow();
+        fetchTrailer();
     }, [id]);
 
     return show ? (
@@ -79,7 +96,7 @@ const MovieDetails = () => {
                     </p>
 
                     <div className="flex items-center flex-wrap gap-4 mt-4">
-                        <button className="flex items-center gap-2 px-7 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95">
+                        <button className="flex items-center gap-2 px-7 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95" onClick={scrollToTrailer}>
                             <PlayCircleIcon className="size-5" />
                             Watch Trailer
                         </button>
@@ -93,6 +110,14 @@ const MovieDetails = () => {
                             <Heart className={`size-5 ${favoriteMovies.find(movie => movie._id === id) && "fill-primary text-primary"}`} />
                         </button>
                     </div>
+                </div>
+            </div>
+
+            <div className="py-20 overflow-visible">
+                <p className="text-gray-300 font-medium text-lg max-w-[960px]">Trailer</p>
+                <div id="trailer" className="relative mt-6" ref={trailerRef}>
+                    <BlurCircle top="-100px" right="-100px" />
+                    <ReactPlayer className="mx-auto max-w-full" src={trailer.videoUrl} controls={false} width={960} height={540} />
                 </div>
             </div>
 
