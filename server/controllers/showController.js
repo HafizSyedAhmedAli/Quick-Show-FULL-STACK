@@ -3,6 +3,29 @@ import Movie from "../models/Movie.js";
 import Show from "../models/Show.js";
 import { inngest } from "../inngest/index.js";
 
+const getThumbnail = async (key) => {
+  const sizes = [
+    "maxresdefault.jpg",
+    "sddefault.jpg",
+    "hqdefault.jpg",
+    "mqdefault.jpg",
+    "default.jpg",
+  ];
+
+  for (const size of sizes) {
+    const url = `https://img.youtube.com/vi/${key}/${size}`;
+    try {
+      const res = await axios.head(url);
+      if (res.status >= 200 && res.status < 300) {
+        return url;
+      }
+    } catch (error) {
+      const status = error.response.status;
+      if (status === 404) continue;
+    }
+  }
+};
+
 // Get Movies Currently in the Theaters from TMDB API : /api/show/now-playing
 export const getNowPlayingMovies = async (req, res) => {
   try {
@@ -17,6 +40,53 @@ export const getNowPlayingMovies = async (req, res) => {
 
     const movies = data.results;
     res.json({ success: true, movies: movies });
+  } catch (error) {
+    console.error(error.message);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Get Trailers from the TMDB API : /api/show/trailers
+export const getTrailers = async (req, res) => {
+  try {
+    const shows = await Show.find({
+      showDateTime: { $gte: new Date() },
+    });
+
+    let trailers = [];
+
+    for (const show of shows) {
+      const { data } = await axios.get(
+        `https://api.themoviedb.org/3/movie/${show.movie}/videos`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
+          },
+        }
+      );
+
+      trailers.push(data.results);
+    }
+
+    const trailersDataPromises = trailers.map(async (trailer) => {
+      const found = trailer.find(
+        (t) => t.site === "YouTube" && t.type === "Trailer" && t.official
+      );
+
+      if (!found?.key) return null;
+
+      const thumbnail = await getThumbnail(found.key);
+
+      return {
+        thumbnail,
+        videoUrl: `https://www.youtube.com/watch?v=${found.key}`,
+      };
+    });
+    const trailersData = (await Promise.all(trailersDataPromises)).filter(
+      Boolean
+    );
+
+    res.json({ success: true, trailers: trailersData });
   } catch (error) {
     console.error(error.message);
     res.json({ success: false, message: error.message });

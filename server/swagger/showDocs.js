@@ -173,6 +173,32 @@
  *         dateTime:
  *           $ref: '#/components/schemas/GetShow_DateTimeMap'
  * 
+ *      Trailer:
+ *          type: object
+ *          properties:
+ *              thumbnail:
+ *                  type: string
+ *                  format: uri
+ *                  description: URL of the trailer thumbnail image (YouTube thumbnail).
+ *                  example: "https://img.youtube.com/vi/abcd1234/maxresdefault.jpg"
+ *              videoUrl:
+ *                  type: string
+ *                  format: uri
+ *                  description: Public URL to watch the trailer (YouTube link).
+ *                  example: "https://www.youtube.com/watch?v=abcd1234"
+ * 
+ *      TrailersResponse:
+ *          type: object
+ *          properties:
+ *              success:
+ *                  type: boolean
+ *                  example: true
+ *              trailers:
+ *                  type: array
+ *                  description: Array of trailer objects for upcoming shows. May be empty.
+ *                  items:
+ *                      $ref: '#/components/schemas/Trailer'
+ * 
  * paths:
  *  /api/show/now-playing:
  *      get:
@@ -250,4 +276,34 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GetShowResponse'
+ * 
+ *  /api/show/trailers:
+ *    get:
+ *      summary: Get trailers for upcoming shows
+ *      tags:
+ *        - Shows
+ *      description: >
+ *        Retrieves trailers for movies that have upcoming shows (`showDateTime >= now`).
+ *        For each upcoming show the server queries TMDB for movie videos, selects the
+ *        first official YouTube trailer, resolves a valid YouTube thumbnail URL (tries
+ *        several sizes) and returns an array of `{ thumbnail, videoUrl }`.
+ *
+ *        **Notes:**
+ *         - TMDB API key is used server-side and is **not** exposed to clients.
+ *         - Only YouTube videos with `type: "Trailer"` and `official: true` are considered.
+ *      responses:
+ *        200:
+ *          description: Successful — returns trailers for upcoming shows 
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/TrailersResponse'
+ *              examples:
+ *                single:
+ *                  summary: Single trailer example
+ *                  value:
+ *                    success: true
+ *                    trailers:
+ *                      - thumbnail: "https://img.youtube.com/vi/abcd1234/maxresdefault.jpg"
+ *                        videoUrl: "https://www.youtube.com/watch?v=abcd1234"
  */

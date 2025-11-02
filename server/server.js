@@ -13,6 +13,8 @@ import bookingRouter from "./routes/bookingRoutes.js";
 import showRouter from "./routes/showRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import getSwaggerOptions from "./swagger/swaggerOptions.js";
+import axios from "axios";
+import Show from "./models/Show.js";
 
 const app = express();
 const port = 3000;
