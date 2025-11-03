@@ -126,8 +126,8 @@ const SeatLayout = () => {
                         <div
                             key={item.time}
                             className={`flex items-center gap-2 px-6 py-2 w-max rounded-r-md cursor-pointer transition ${selectedTime?.time === item.time
-                                    ? "bg-primary text-white"
-                                    : "hover:bg-primary/20"
+                                ? "bg-primary text-white"
+                                : "hover:bg-primary/20"
                                 }`}
                             onClick={() => setSelectedTime(item)}
                         >

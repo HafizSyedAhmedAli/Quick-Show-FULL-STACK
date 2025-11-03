@@ -14,8 +14,6 @@ const TrailersSection = () => {
         try {
             const { data } = await axios.get("/api/show/trailers");
             setTrailers(data.trailers);
-            console.log(data);
-            
 
         } catch (error) {
             console.log(error);
@@ -38,12 +36,12 @@ const TrailersSection = () => {
 
             <div className="relative mt-6">
                 <BlurCircle top="-100px" right="-100px" />
-                <ReactPlayer className="mx-auto max-w-full" src={currentTrailer.videoUrl} controls={false} width={960} height={540} />
+                <ReactPlayer className="mx-auto max-w-full" src={currentTrailer.videoUrl} controls={false} width={(window.innerWidth <= 768) ? "80vw" : "70vw"} height={(window.innerWidth <= 768) ? "40vh" : "80vh"} />
             </div>
 
-            <div className="group grid grid-cols-4 gap-4 md:gap-8 mt-8 max-w-3xl mx-auto">
+            <div className="group md:grid grid-cols-4 gap-6 md:gap-8 mt-8 max-w-[80vw] md:max-w-3xl mx-auto flex overflow-x-auto max-md:mt-16">
                 {trailers.map((trailer) => (
-                    <div key={trailer.thumbnail} className="relative group-hover:not-hover:opacity-50 hover:-translate-y-1 duration-300 transition max-md:h-60 md:max-h-60 cursor-pointer" onClick={() => setCurrentTrailer(trailer)}>
+                    <div key={trailer.thumbnail} className="relative group-hover:not-hover:opacity-50 hover:-translate-y-1 duration-300 transition max-md:size-32 md:max-h-60 shrink-0 cursor-pointer" onClick={() => setCurrentTrailer(trailer)}>
                         <img className="rounded-lg w-full h-full brightness-75" src={trailer.thumbnail} alt="trailer" />
                         <PlayCircle className="absolute top-1/2 left-1/2 w-5 md:w-8 h-5 md:h-12 transform -translate-x-1/2 -translate-y-1/2" strokeWidth={1.6} />
                     </div>

@@ -74,7 +74,7 @@ const MovieDetails = () => {
                     src={image_base_url + show.movie.poster_path}
                     alt=""
                 />
-
+                
                 <div className="relative flex flex-col gap-3">
                     <BlurCircle top="-100px" left="-100px" />
                     <p className="text-primary">ENGLISH</p>
@@ -113,11 +113,11 @@ const MovieDetails = () => {
                 </div>
             </div>
 
-            <div className="py-20 overflow-visible">
+            <div className="py-20 overflow-hidden">
                 <p className="text-gray-300 font-medium text-lg max-w-[960px]">Trailer</p>
                 <div id="trailer" className="relative mt-6" ref={trailerRef}>
                     <BlurCircle top="-100px" right="-100px" />
-                    <ReactPlayer className="mx-auto max-w-full" src={trailer.videoUrl} controls={false} width={960} height={540} />
+                    <ReactPlayer className="mx-auto max-w-full" src={trailer.videoUrl} controls={false} width={(window.innerWidth <= 768) ? "80vw" : "70vw"} height={(window.innerWidth <= 768) ? "40vh" : "80vh"} />
                 </div>
             </div>
 

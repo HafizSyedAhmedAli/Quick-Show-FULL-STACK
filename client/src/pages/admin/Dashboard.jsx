@@ -1,12 +1,11 @@
 import { ChartLineIcon, CircleDollarSignIcon, PlayCircleIcon, StarIcon, UsersIcon } from 'lucide-react';
 import { useEffect, useState } from "react";
-import { dummyDashboardData } from '../../assets/assets';
-import Loading from '../../components/Loading';
+import toast from 'react-hot-toast';
 import Title from '../../components/admin/Title';
 import BlurCircle from '../../components/BlurCircle';
-import dateFormat from '../../lib/dateFormat';
+import Loading from '../../components/Loading';
 import { useAppContext } from '../../context/AppContext';
-import toast from 'react-hot-toast';
+import dateFormat from '../../lib/dateFormat';
 
 const Dashboard = () => {
 

@@ -4,15 +4,12 @@ import {
     ListIcon,
     PlusSquareIcon,
 } from "lucide-react";
-import { assets } from "../../assets/assets";
 import { NavLink } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext";
 
 const AdminSidebar = () => {
-    const user = {
-        firstName: "Admin",
-        lastName: "User",
-        imageUrl: assets.profile,
-    };
+    
+    const { user } = useAppContext();
 
     const adminNavLinks = [
         { name: "Dashboard", path: "/admin", icon: LayoutDashboardIcon },
