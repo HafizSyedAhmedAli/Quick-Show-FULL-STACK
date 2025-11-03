@@ -49,15 +49,17 @@ export const getNowPlayingMovies = async (req, res) => {
 // Get Trailers from the TMDB API : /api/show/trailers
 export const getTrailers = async (req, res) => {
   try {
-    const shows = await Show.find({
+    const showsData = await Show.find({
       showDateTime: { $gte: new Date() },
     });
+
+    const shows = new Set(showsData.map((show) => show.movie));
 
     let trailers = [];
 
     for (const show of shows) {
       const { data } = await axios.get(
-        `https://api.themoviedb.org/3/movie/${show.movie}/videos`,
+        `https://api.themoviedb.org/3/movie/${show}/videos`,
         {
           headers: {
             Authorization: `Bearer ${process.env.TMDB_API_KEY}`,

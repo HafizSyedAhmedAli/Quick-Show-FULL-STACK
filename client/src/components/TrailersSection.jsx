@@ -14,6 +14,8 @@ const TrailersSection = () => {
         try {
             const { data } = await axios.get("/api/show/trailers");
             setTrailers(data.trailers);
+            console.log(data);
+            
 
         } catch (error) {
             console.log(error);
